@@ -1,0 +1,62 @@
+name: Research Paper Finder
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  # BACKEND JOB
+  backend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install and setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.9"
+          cache: "pip"
+
+      - name: Install Backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run Backend test and health check
+        run: |
+          cd backend
+          pytest
+
+      - name: Deploy Backend
+        if: success()
+        run: curl ${{ secrets.RENDER_DEPLOY_TOKEN }}
+
+  # FRONTEND JOB
+  frontend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup and install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: paper-search-ui/package-lock.json
+
+      - name: Install Frontend dependencies
+        run: |
+          cd paper-search-ui
+          npm install
+
+      - name: Build & Lint
+        run: |
+          cd paper-search-ui
+          npm run build
+
+      - name: Deploy frontend to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./paper-search-ui

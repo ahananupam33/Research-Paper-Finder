@@ -57,13 +57,13 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
     return papers
 
 if __name__ == "__main__":
-    uvicorn.run("paper-search-test:app", host="127.0.0.1", port=8000, reload=True)
+    # uvicorn.run("paper-search-test:app", host="127.0.0.1", port=8000, reload=True)
 
-    # print("Testing Arxiv Searcher...")
-    # papers = search(
-    #     query="MCP",
-    #     sort="newest",
-    #     start=0
-    # )
-    # print("Papers retrieved: ", papers)
-    # print("End of Arxiv Searcher test!")
+    print("Testing Arxiv Searcher...")
+    papers = search(
+        query="MCP",
+        sort="newest",
+        start=0
+    )
+    print("Papers retrieved: ", papers)
+    print("End of Arxiv Searcher test!")
