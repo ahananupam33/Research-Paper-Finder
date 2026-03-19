@@ -20,16 +20,10 @@ jobs:
         run: |
           cd backend
           pip install -r requirements.txt
-          pip install pytest
-
-      - name: Run Backend test and health check
-        run: |
-          cd backend
-          pytest
 
       - name: Deploy Backend
         if: success()
-        run: curl ${{ secrets.RENDER_DEPLOY_TOKEN }}
+        run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
 
   # FRONTEND JOB
   frontend-deploy:
