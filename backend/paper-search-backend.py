@@ -61,7 +61,7 @@ def home():
     return {"message": "Paper Search Backend is Live!!"}
 
 if __name__ == "__main__":
-    uvicorn.run("paper-search-test:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("paper-search-backend:app", host="0.0.0.0", port=8000, reload=True)
 
     # print("Testing Arxiv Searcher...")
     # papers = search(
