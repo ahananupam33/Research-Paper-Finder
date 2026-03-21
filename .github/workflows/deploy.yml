@@ -52,7 +52,7 @@ jobs:
           npm install --global vercel@latest
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel build  --prod --token=${{ secrets.VERCEL_TOKEN }}
-          vercel deploy --prebuild --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ./paper-search-ui
         env:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
