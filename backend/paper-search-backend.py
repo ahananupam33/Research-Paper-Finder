@@ -28,8 +28,8 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
     for entry in feed.entries:
         try:
             authors = [author.name for author in entry.authors]
-            published = datetime.strptime(entry.published, '%Y-%m-%dT%H:%M:%SZ')
-            updated = datetime.strptime(entry.updated, '%Y-%m-%dT%H:%M:%SZ')
+            published = datetime.strptime(entry.published, '%Y-%m-%dT%H:%M:%S')
+            updated = datetime.strptime(entry.updated, '%Y-%m-%dT%H:%M:%S')
             pdf_url = next((link.href for link in entry.links if link.type == 'application/pdf'), '')
             papers.append(Paper(
                     paper_id=entry.id.split('/')[-1],
@@ -39,8 +39,8 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
                     source='arxiv',
                     url=entry.id,
                     pdf_url=pdf_url,
-                    published_date=published,
-                    updated_date=updated,
+                    published_date=published.date(),
+                    updated_date=updated.date(),
                     categories=[tag.term for tag in entry.tags],
                     keywords=[]
                 ))

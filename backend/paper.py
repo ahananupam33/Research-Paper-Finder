@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
-from datetime import datetime
+from datetime import datetime, date
 
 @dataclass
 class Paper:
@@ -10,8 +10,8 @@ class Paper:
     abstract: str
     source: str
     url: str
-    published_date: datetime
-    updated_date: Optional[datetime] = None 
+    published_date: date
+    updated_date: Optional[date] = None 
     source_id: Optional[str] = None
     pdf_url: Optional[str] = None
     venue: Optional[str] = None
