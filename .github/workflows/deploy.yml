@@ -42,15 +42,18 @@ jobs:
           cd paper-search-ui
           npm install
 
-      - name: Build & Lint
-        run: |
-          cd paper-search-ui
-          npm run build
+      # - name: Build & Lint
+      #   run: |
+      #     cd paper-search-ui
+      #     npm run build
 
-      - name: Deploy frontend to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      - name: Build and Deploy frontend to Vercel
+        run: |
+          npm install --global vercel@latest
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build  --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuild --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./paper-search-ui
+        env:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./paper-search-ui
