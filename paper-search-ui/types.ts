@@ -1,7 +1,7 @@
 export interface Paper {
     title: string;
     authors: string[];
-    publishDate: string;
+    published_date: string;
     citationCount: number;
     url: string;
     abstract: string;

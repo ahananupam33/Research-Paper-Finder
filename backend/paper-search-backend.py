@@ -12,12 +12,11 @@ BASE_URL = "http://export.arxiv.org/api/query"
 
 @app.get("/api/search")
 def search(query: str, sort: str, start: int, total_results: int = 10):
-    results_per_itr = 10
 
     params = {
         'search_query': query,
         'start': start,
-        'max_results': results_per_itr,
+        'max_results': total_results,
         'sortBy': 'submittedDate',
         'sortOrder': 'descending'
     }
@@ -28,8 +27,10 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
     for entry in feed.entries:
         try:
             authors = [author.name for author in entry.authors]
-            published = datetime.strptime(entry.published, '%Y-%m-%dT%H:%M:%S')
-            updated = datetime.strptime(entry.updated, '%Y-%m-%dT%H:%M:%S')
+            published = datetime.strptime(entry.published, '%Y-%m-%dT%H:%M:%SZ')
+            updated = datetime.strptime(entry.updated, '%Y-%m-%dT%H:%M:%SZ')
+            publishedDate = published.strftime('%Y-%m-%d')
+            updatedDate = updated.strftime('%Y-%m-%d')
             pdf_url = next((link.href for link in entry.links if link.type == 'application/pdf'), '')
             papers.append(Paper(
                     paper_id=entry.id.split('/')[-1],
@@ -39,8 +40,8 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
                     source='arxiv',
                     url=entry.id,
                     pdf_url=pdf_url,
-                    published_date=published.date(),
-                    updated_date=updated.date(),
+                    published_date=publishedDate,
+                    updated_date=updatedDate,
                     categories=[tag.term for tag in entry.tags],
                     keywords=[]
                 ))

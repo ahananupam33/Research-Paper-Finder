@@ -23,7 +23,7 @@ PaperCard({ paper }: PaperCardProps) {
             {/* 3. Metadata (Citations and Date) */}
             <div className="flex gap-4 text-xs font-medium text-gray-500 mb-4">
                 <span className="bg-gray-100 px-2 py-1 rounded">
-                    {new Date(paper.publishDate).toLocaleDateString()}
+                    {paper.published_date}
                 </span>
                 <span className="bg-blue-50 px-2 py-1 rounded">
                     {paper.citationCount} Citations
