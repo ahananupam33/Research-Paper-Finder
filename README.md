@@ -468,7 +468,6 @@ Research-Paper-Finder/
 ├── backend/                      # Backend application
 │   ├── paper-search-backend.py   # Main FastAPI application
 │   ├── paper.py                  # Paper data model
-│   ├── datetest.py              # Date utility testing
 │   ├── requirements.txt          # Python dependencies
 │   └── venv/                     # Virtual environment (gitignored)
 │
