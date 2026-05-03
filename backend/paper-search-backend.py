@@ -1,14 +1,31 @@
 import requests
 import time
 import feedparser
-from typing import List
+from typing import List, Dict, Optional
 from datetime import datetime
 from paper import Paper
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import uvicorn
+from ollama_client import check_ollama_available, generate_response, create_paper_context_prompt
 
 app = FastAPI()
 BASE_URL = "http://export.arxiv.org/api/query"
+
+# Pydantic models for chat API
+class ChatRequest(BaseModel):
+    message: str
+    paper: Dict
+    conversation_history: List[Dict]
+    action: str = "answer"
+
+class ChatResponse(BaseModel):
+    response: str
+    suggested_actions: Optional[List[str]] = None
+
+@app.get("/")
+def home():
+    return {"message": "Paper Search Backend is Live!!"}
 
 @app.get("/api/search")
 def search(query: str, sort: str, start: int, total_results: int = 10):
@@ -54,21 +71,56 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
         papers.sort(key=lambda x : x.published_date)
     elif sort == "citations":
         papers.sort(key=lambda x : x.citation_count, reverse=True)
-    
+
     return papers
 
-@app.get("/")
-def home():
-    return {"message": "Paper Search Backend is Live!!"}
+@app.post("/api/chat")
+def chat(request: ChatRequest) -> ChatResponse:
+    """
+    Chat endpoint that uses Ollama to answer questions about research papers
+    """
+    # Check if Ollama is available
+    if not check_ollama_available():
+        raise HTTPException(
+            status_code=503,
+            detail="Ollama is not running. Please start it with 'ollama serve' and ensure you have a model installed (e.g., 'ollama pull llama2')."
+        )
+
+    try:
+        # Create the prompt with paper context
+        prompt = create_paper_context_prompt(
+            paper=request.paper,
+            user_message=request.message,
+            action=request.action,
+            conversation_history=request.conversation_history
+        )
+
+        # Generate response from Ollama
+        ai_response = generate_response(prompt)
+
+        # Suggest quick actions based on conversation
+        suggested_actions = []
+        if request.action == "explain":
+            suggested_actions = ["Ask a specific question", "Find related topics"]
+        elif request.action == "suggest_related":
+            suggested_actions = ["Explain the paper", "Compare approaches"]
+
+        return ChatResponse(
+            response=ai_response,
+            suggested_actions=suggested_actions
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating response: {str(e)}"
+        )
 
 if __name__ == "__main__":
-    uvicorn.run("paper-search-backend:app", host="0.0.0.0", port=8000, reload=True)
+    # Check Ollama on startup
+    if check_ollama_available():
+        print("✓ Ollama is running and available")
+    else:
+        print("⚠ Warning: Ollama is not running. Start it with 'ollama serve'")
 
-    # print("Testing Arxiv Searcher...")
-    # papers = search(
-    #     query="MCP",
-    #     sort="newest",
-    #     start=0
-    # )
-    # print("Papers retrieved: ", papers)
-    # print("End of Arxiv Searcher test!")
+    uvicorn.run("paper-search-backend:app", host="0.0.0.0", port=8000, reload=True)

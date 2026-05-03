@@ -2,12 +2,16 @@ import { Paper } from '../types';
 
 interface PaperCardProps {
     paper: Paper;
+    onAskAI?: (paper: Paper) => void;
+    isSelected?: boolean;
 }
 
 export default function
-PaperCard({ paper }: PaperCardProps) {
+PaperCard({ paper, onAskAI, isSelected = false }: PaperCardProps) {
     return (
-        <div className="p-6 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white">
+        <div className={`p-6 border rounded-lg shadow-sm hover:shadow-md transition-all bg-white ${
+            isSelected ? 'border-2 border-blue-600 bg-blue-50' : ''
+        }`}>
             {/* 1. Title */}
             <h2 className="text-xl font-bold text-blue-700 mb-2">
                 <a href={paper.url} target="_blank" rel="noopener noreferrer">
@@ -31,9 +35,24 @@ PaperCard({ paper }: PaperCardProps) {
             </div>
 
             {/* 4. Abstract */}
-            <p className="text-gray-700 line-clamp-3 text-sm">
+            <p className="text-gray-700 line-clamp-3 text-sm mb-4">
                 {paper.abstract}
             </p>
+
+            {/* 5. Ask AI Button */}
+            {onAskAI && (
+                <button
+                    onClick={() => onAskAI(paper)}
+                    className={`${
+                        isSelected
+                            ? 'bg-blue-700 hover:bg-blue-800'
+                            : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2`}
+                >
+                    <span>🤖</span>
+                    <span>{isSelected ? 'Continue Chat' : 'Ask AI'}</span>
+                </button>
+            )}
         </div>
     );
 }
