@@ -29,18 +29,38 @@ def home():
 
 @app.get("/api/search")
 def search(query: str, sort: str, start: int, total_results: int = 10):
+    """
+    Search arXiv for papers matching the query.
 
+    The query is formatted to search in title, abstract, and keywords for better relevance.
+    By default (when sort='relevance'), arXiv returns results sorted by relevance.
+    """
+
+    # Format the query for better multi-word search
+    # Search in title, abstract, and all fields for comprehensive results
+    formatted_query = f'all:"{query}"'
+
+    # Build parameters based on sort preference
     params = {
-        'search_query': query,
+        'search_query': formatted_query,
         'start': start,
         'max_results': total_results,
-        'sortBy': 'submittedDate',
-        'sortOrder': 'descending'
     }
+
+    # Only add sortBy/sortOrder if user explicitly wants date sorting
+    # By default (no sortBy), arXiv returns results by relevance
+    if sort == "newest":
+        params['sortBy'] = 'submittedDate'
+        params['sortOrder'] = 'descending'
+    elif sort == "oldest":
+        params['sortBy'] = 'submittedDate'
+        params['sortOrder'] = 'ascending'
+    # For 'relevance' or any other value, don't add sortBy - let arXiv use default relevance ranking
 
     response = requests.get(BASE_URL, params=params)
     feed = feedparser.parse(response.content)
     papers = []
+
     for entry in feed.entries:
         try:
             authors = [author.name for author in entry.authors]
@@ -65,11 +85,9 @@ def search(query: str, sort: str, start: int, total_results: int = 10):
         except Exception as e:
             print(f"Error parsing arXiv entry: {e}")
 
-    if sort == "newest":
-        papers.sort(key=lambda x : x.published_date, reverse=True)
-    elif sort == "oldest":
-        papers.sort(key=lambda x : x.published_date)
-    elif sort == "citations":
+    # Note: We don't need to re-sort for "newest" or "oldest" since arXiv already sorted
+    # Only sort client-side for features not supported by arXiv API (like citations)
+    if sort == "citations":
         papers.sort(key=lambda x : x.citation_count, reverse=True)
 
     return papers

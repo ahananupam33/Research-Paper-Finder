@@ -6,7 +6,7 @@ export default async function HomePage({ searchParams }: SearchProps) {
 
   const params = await searchParams;
   const query = params.query || '';
-  const sort = params.sort || 'newest';
+  const sort = params.sort || 'relevance';  // Default to relevance for better search results
   const currentPage = parseInt(params.page || '1');
   const limit = parseInt(params.limit || '10');
   const papers = query ? await fetchPapers(query, sort, currentPage, limit) : [];
